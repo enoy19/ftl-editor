@@ -1,0 +1,25 @@
+/target/
+/dist/
+.DS_Store
+
+# Release receipts are local evidence, not source
+/docs/receipts/
+
+# Editor and agent state
+.idea/
+.vscode/
+*.iml
+.claude/
+.agents/
+.codex/
+graphify-out/
+
+# Saves and game data never go in the repository
+*.dat
+/*.sav
+ae_prof.sav
+continue.sav
+!crates/ftl-sav/tests/fixtures/**/*.sav
+
+# Flutter ephemeral files (also in app/.gitignore)
+app/**/ephemeral/

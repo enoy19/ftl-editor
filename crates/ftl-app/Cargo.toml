@@ -1,0 +1,33 @@
+[package]
+name = "ftled-app"
+description = "Application layer of the FTL editor: open, edit, verify, back up and save files. The one API for the CLI and the Flutter bridge."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords.workspace = true
+categories = ["game-development"]
+# Only the sources ship; tests and fixtures stay in the repository.
+include = ["src/**/*", "Cargo.toml"]
+
+[lib]
+# The package is ftled-app on crates.io; the crate keeps its name in code.
+name = "ftl_app"
+path = "src/lib.rs"
+
+[dependencies]
+ftl-core.workspace = true
+ftl-sav.workspace = true
+ftl-assets.workspace = true
+directories.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+jiff.workspace = true
+thiserror.workspace = true
+sysinfo.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+image.workspace = true

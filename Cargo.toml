@@ -1,0 +1,43 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "app/rust"]
+
+[workspace.package]
+edition = "2024"
+license = "GPL-3.0-or-later"
+version = "0.2.0"
+repository = "https://github.com/enoy19/ftl-editor"
+homepage = "https://github.com/enoy19/ftl-editor"
+readme = "README.md"
+keywords = ["ftl", "save-editor", "savegame", "game", "faster-than-light"]
+publish = false
+
+[workspace.dependencies]
+# Published to crates.io as ftled-*; the dependency keys keep the crate names
+# in code (ftl_core, ...). `version` equals workspace.package.version: raise
+# both together.
+ftl-core = { path = "crates/ftl-core", package = "ftled-core", version = "0.2.0" }
+ftl-sav = { path = "crates/ftl-sav", package = "ftled-sav", version = "0.2.0" }
+ftl-app = { path = "crates/ftl-app", package = "ftled-app", version = "0.2.0" }
+ftl-assets = { path = "crates/ftl-assets", package = "ftled-assets", version = "0.2.0" }
+anyhow = "1.0.104"
+clap = { version = "4.6.8", features = ["derive"] }
+directories = "6.0.0"
+jiff = "0.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+tempfile = "3"
+sysinfo = { version = "0.40.4", default-features = false, features = ["system"] }
+# GPL-3.0; reads PKG (FTL 1.6.1+) and DAT (before). Refuses deflated PKG entries; FTL 1.6.13 has none.
+ftldat = "0.1.1"
+quick-xml = { version = "0.42.0", features = ["serialize", "overlapped-lists"] }
+image = { version = "0.25.10", default-features = false, features = ["png"] }
+
+# Compact dev builds, no incremental artifacts (keeps build caches small).
+[profile.dev]
+incremental = false
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false

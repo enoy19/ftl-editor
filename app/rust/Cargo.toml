@@ -1,0 +1,23 @@
+[package]
+name = "ftl_bridge"
+description = "flutter_rust_bridge adapter: exposes ftl-app to the Flutter desktop app."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+ftl-app.workspace = true
+flutter_rust_bridge = "=2.13.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[dev-dependencies]
+# The fake layout port of the fixtures (crates/ftl-sav/tests/common/layouts.rs)
+# names ftl-core types; tests only, the bridge itself knows ftl-app only.
+ftl-core.workspace = true
+tempfile.workspace = true

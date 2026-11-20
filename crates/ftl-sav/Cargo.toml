@@ -1,0 +1,22 @@
+[package]
+name = "ftled-sav"
+description = "Binary codecs of FTL continue.sav (formats 2, 7, 8, 9, 11) and ae_prof.sav/prof.sav (formats 9, 4), adapters for the ftl-core SaveCodec and ProfileCodec ports."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords.workspace = true
+categories = ["game-development", "parser-implementations", "encoding"]
+# Only the sources ship; tests and fixtures stay in the repository.
+include = ["src/**/*", "Cargo.toml"]
+
+[lib]
+# The package is ftled-sav on crates.io; the crate keeps its name in code.
+name = "ftl_sav"
+path = "src/lib.rs"
+
+[dependencies]
+ftl-core.workspace = true
+binrw = "0.15.2"

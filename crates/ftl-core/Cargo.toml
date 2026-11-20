@@ -1,0 +1,22 @@
+[package]
+name = "ftled-core"
+description = "Domain model, edit use cases and ports of the FTL editor. No IO, no file format."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords.workspace = true
+categories = ["game-development", "parser-implementations"]
+# Only the sources ship; tests and fixtures stay in the repository.
+include = ["src/**/*", "Cargo.toml"]
+
+[lib]
+# The package is ftled-core on crates.io; the crate keeps its name in code.
+name = "ftl_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true

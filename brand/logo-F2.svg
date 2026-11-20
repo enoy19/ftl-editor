@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- FTL Save Editor logo, variant F2: the wrench of F with its glow over the dark planet with a pale rim, nothing else. Own work, GPL-3.0-or-later. -->
+  <defs>
+    <clipPath id="tile"><rect x="100" y="100" width="824" height="824" rx="186"/></clipPath>
+    <radialGradient id="void" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0" stop-color="#0d0b0d"/>
+      <stop offset="1" stop-color="#000000"/>
+    </radialGradient>
+    <radialGradient id="sphere" cx="0.62" cy="0.3" r="0.85">
+      <stop offset="0" stop-color="#241e22"/>
+      <stop offset="0.6" stop-color="#100d0f"/>
+      <stop offset="1" stop-color="#050405"/>
+    </radialGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e4e2e6"/>
+    </linearGradient>
+    <filter id="halo" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="16"/></filter>
+    <g id="wrench" transform="translate(512 512) rotate(-45)">
+      <rect x="-300" y="-46" width="440" height="92" rx="12"/>
+      <path d="M 120 -110 L 230 -110 L 290 -60 L 290 -30 L 200 -30 L 200 30 L 290 30 L 290 60 L 230 110 L 120 110 L 100 46 L 100 -46 Z"/>
+      <path d="M -300 -70 L -250 -70 L -230 -46 L -230 46 L -250 70 L -300 70 L -320 46 L -320 -46 Z"/>
+    </g>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#void)"/>
+  <g clip-path="url(#tile)">
+  <circle cx="600" cy="430" r="336" fill="none" stroke="#f3d7de" stroke-width="34" stroke-opacity="0.55" filter="url(#halo)"/>
+  <circle cx="600" cy="430" r="330" fill="url(#sphere)"/>
+  <circle cx="600" cy="430" r="330" fill="none" stroke="#fff1f4" stroke-width="5" stroke-opacity="0.75"/>
+  <use href="#wrench" filter="url(#bloom)" fill="#ffffff" fill-opacity="0.85"/>
+  <use href="#wrench" fill="url(#glyph)"/>
+  </g>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="none" stroke="#3a3236" stroke-width="6"/>
+</svg>

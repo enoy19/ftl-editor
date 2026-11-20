@@ -1,0 +1,954 @@
+{
+  "@@locale": "en",
+  "appTitle": "FTL Save Editor",
+  "open": "Open",
+  "save": "Save",
+  "sector": "Sector {n}",
+  "@sector": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "difficultyEasy": "Easy",
+  "difficultyNormal": "Normal",
+  "difficultyHard": "Hard",
+  "resources": "Resources",
+  "fieldHull": "Hull",
+  "fieldFuel": "Fuel",
+  "fieldDroneParts": "Drone parts",
+  "fieldMissiles": "Missiles",
+  "fieldScrap": "Scrap",
+  "notANumber": "Not a number",
+  "outOfRange": "Allowed: {min} to {max}",
+  "@outOfRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "saved": "Saved. Backup: {backup}",
+  "@saved": {
+    "placeholders": {
+      "backup": {
+        "type": "String"
+      }
+    }
+  },
+  "closeFtlHint": "Close FTL before you save: the game writes this file when it quits.",
+  "error": "Error: {message}",
+  "@error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNoSave": "No saved game at {path}. FTL deletes continue.sav when a run ends. Start or continue a run, then quit FTL to write it.",
+  "@errorNoSave": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "errorChangedOnDisk": "{path} changed since it was opened (is FTL running?). Nothing was written. Close FTL, reload and repeat the edit.",
+  "@errorChangedOnDisk": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDecode": "Cannot read {path}. Detail: {detail}",
+  "@errorDecode": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorVerify": "The edited file would not read back correctly. Nothing was written. Detail: {detail}",
+  "@errorVerify": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorEdit": "Invalid value. Detail: {detail}",
+  "@errorEdit": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorIo": "Cannot access {path}. Detail: {detail}",
+  "@errorIo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNoHome": "No home folder found. Detail: {detail}",
+  "@errorNoHome": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "ftlSaves": "FTL saved games",
+  "allFiles": "All files",
+  "chooseFile": "Choose saved game",
+  "reloadFile": "Reload the saved game from disk",
+  "discardEditsTitle": "Discard changes?",
+  "discardEditsBody": "Reloading reads the file again. The changes not yet saved are lost.",
+  "discardEdits": "Discard and reload",
+  "noFileOpen": "No saved game open",
+  "advancedEdition": "Advanced Edition",
+  "setToMax": "Set to maximum ({max})",
+  "@setToMax": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryTitle": "UI variants",
+  "galleryDark": "Dark theme",
+  "galleryLanguage": "Switch language",
+  "areaShip": "Ship",
+  "areaCrew": "Crew",
+  "areaEquipment": "Equipment",
+  "areaMap": "Map",
+  "areaProfile": "Profile",
+  "areaExpert": "Expert",
+  "expertDump": "Raw dump",
+  "expertStateVars": "State vars",
+  "expertUnknown": "Unknown fields",
+  "statusFtlRunning": "FTL is running",
+  "statusFtlClosed": "FTL is closed",
+  "statusSteamCloud": "Steam Cloud on",
+  "skillPilot": "Pilot",
+  "skillEngines": "Engines",
+  "skillShields": "Shields",
+  "skillWeapons": "Weapons",
+  "skillRepair": "Repair",
+  "skillCombat": "Combat",
+  "raceHuman": "Human",
+  "raceEngi": "Engi",
+  "raceMantis": "Mantis",
+  "raceRock": "Rock",
+  "raceZoltan": "Zoltan",
+  "raceSlug": "Slug",
+  "crewTrainAll": "Train fully",
+  "crewHeal": "Heal",
+  "raceCrystal": "Crystal",
+  "raceLanius": "Lanius",
+  "raceGhost": "Ghost",
+  "raceDrone": "Anti-personnel drone",
+  "fieldCrewHealth": "Health",
+  "fieldCrewName": "Name",
+  "fieldCrewRace": "Race",
+  "crewRename": "Rename",
+  "crewNameRule": "1 to 32 characters",
+  "crewChangeRace": "Change race",
+  "crewRaceNote": "A new race keeps the share of health and the mastery level of each skill.",
+  "crewField": "{name}: {field}",
+  "@crewField": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "crewSkillTooltip": "{skill}: {points} of {max}, level {level} of 2",
+  "@crewSkillTooltip": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "crewSkillHint": "Click: next mastery level. Long press or right click: exact points.",
+  "crewNone": "No crew aboard.",
+  "statusLastBackup": "Last backup: {time}",
+  "@statusLastBackup": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "apply": "Apply",
+  "cancel": "Cancel",
+  "resourceTooltip": "{label}, {min} to {max}. Click to edit.",
+  "@resourceTooltip": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "resourceEdited": "{label}: changed, {inFile} in the file",
+  "@resourceEdited": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "inFile": {
+        "type": "int"
+      }
+    }
+  },
+  "laterMap": "The map comes with the map view: sectors, beacons and stores.",
+  "statusFtlUnknown": "FTL: unknown",
+  "statusSteamCloudOff": "Steam Cloud off",
+  "statusSteamCloudUnknown": "Steam Cloud: unknown",
+  "statusSteamCloudHint": "Steam Cloud can replace the edited file with its own copy when FTL starts.",
+  "statusNotChecked": "Open a file to check this.",
+  "statusNoBackup": "No backup in this session",
+  "ftlDatFound": "Game data found",
+  "ftlDatFoundHint": "The editor shows ship, crew and item images from this ftl.dat of your FTL installation. Use it?",
+  "ftlDatConfirm": "Use this ftl.dat",
+  "ftlDatChoose": "Choose ftl.dat",
+  "ftlDatNotFound": "No ftl.dat found",
+  "ftlDatNotFoundHint": "The editor runs in reduced mode without game images. Choose ftl.dat, its folder or FTL.app.",
+  "ftlDatFiles": "FTL game data",
+  "ftlDatApp": "FTL app",
+  "reducedMode": "Reduced mode: no ftl.dat",
+  "errorFtlDatNotFound": "No ftl.dat found. Detail: {detail}",
+  "@errorFtlDatNotFound": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorConfig": "Cannot use the editor settings in {path}. Detail: {detail}",
+  "@errorConfig": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUnknownImageId": "The game data has no such image. Detail: {detail}",
+  "@errorUnknownImageId": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorFtlDatNotOpen": "No ftl.dat is open. The editor runs in reduced mode.",
+  "errorEntryMissing": "The game data has no such file. Detail: {detail}",
+  "@errorEntryMissing": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorFtlDatUnreadable": "Cannot read the game data {path}. Detail: {detail}",
+  "@errorFtlDatUnreadable": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryLook": "FTL look",
+  "lookNoFtlDat": "No ftl.dat found: the FTL look reads its fonts and frames from the local game.",
+  "lookUnreadable": "The FTL look cannot be read from ftl.dat: {detail}",
+  "@lookUnreadable": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "equipReactor": "Reactor",
+  "equipSystems": "Systems",
+  "equipWeapons": "Weapons",
+  "equipDrones": "Drones",
+  "equipAugments": "Augments",
+  "equipSlots": "{used} of {all} slots",
+  "@equipSlots": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "all": {
+        "type": "int"
+      }
+    }
+  },
+  "equipPower": "Power {power}",
+  "@equipPower": {
+    "placeholders": {
+      "power": {
+        "type": "int"
+      }
+    }
+  },
+  "equipNotInstalled": "Not installed",
+  "equipAddAugment": "Add augment",
+  "equipEmptySlot": "Empty slot",
+  "@equipEmptySlot": {
+    "description": "A weapon, drone, cargo or augment slot that holds nothing."
+  },
+  "equipRemove": "Remove",
+  "equipCargo": "Cargo",
+  "equipAddWeapon": "Add weapon",
+  "equipAddDrone": "Add drone",
+  "equipAddCargo": "Add to cargo",
+  "equipOn": "on",
+  "equipPowerOn": "Power on",
+  "equipPowerOff": "Power off",
+  "equipToCargo": "Move to cargo",
+  "equipToSlot": "Move to a slot",
+  "equipCargoUnknown": "The cargo needs the sector map after the ship, which needs the ship layout from ftl.dat.",
+  "equipItemsLocked": "Weapons and drones need ftl.dat and the states after the nearby ship.",
+  "equipPowered": "{name}: powered",
+  "@equipPowered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipInCargo": "{name} in the cargo",
+  "@equipInCargo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipRowHint": "Click a segment to set the level, right-click it to break or repair it.",
+  "equipNotDecoded": "Weapons, drones and augments need the ship layout from ftl.dat.",
+  "equipFilter": "Filter by name",
+  "statusReducedMode": "Reduced mode",
+  "statusReducedModeHint": "No ftl.dat is open: the editor shows icons instead of game images.",
+  "statusGameData": "Game data: ftl.dat",
+  "statusChooseFile": "Click to open another saved game.",
+  "statusChooseGameData": "Click to choose another ftl.dat.",
+  "statusProcessListUnavailable": "The editor cannot read the process list, so a running FTL is unknown. Quit FTL before you save. Detail: {detail}",
+  "@statusProcessListUnavailable": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "ftlRunningTitle": "FTL is running",
+  "ftlRunningBody": "FTL is running and overwrites this file when it quits. Quit FTL first, then save.",
+  "saveAnyway": "Save anyway",
+  "changesTitle": "Changes to write",
+  "changesHint": "Check each change before the editor writes the file.",
+  "undo": "Undo",
+  "redo": "Redo",
+  "writeFile": "Write file",
+  "backupsTitle": "Backups of {file}",
+  "@backupsTitle": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "backupsEmpty": "No backups of this file yet.",
+  "backupsShow": "Show the backups of this file",
+  "restore": "Restore",
+  "restoreTitle": "Restore this backup?",
+  "restoreBody": "The editor writes the backup from {time} over the open file. It backs up the current file first. Edits that are not saved are lost.",
+  "@restoreBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "restored": "Restored the backup. Backup of the replaced file: {backup}",
+  "@restored": {
+    "placeholders": {
+      "backup": {
+        "type": "String"
+      }
+    }
+  },
+  "close": "Close",
+  "profileChoose": "Choose profile",
+  "profileNoFile": "No profile open",
+  "profileShips": "Player ships",
+  "profileAchievements": "Achievements ({n})",
+  "@profileAchievements": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "profileStats": "Stats",
+  "profileTopScores": "Top scores",
+  "profileNoScores": "No scores yet",
+  "profileUnlockAll": "Unlock all ships",
+  "profileUnlockAdds": "Adds on Easy: {achievements}",
+  "@profileUnlockAdds": {
+    "placeholders": {
+      "achievements": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAllUnlocked": "Every layout of every ship is already unlocked.",
+  "profileLayoutUnlocked": "Type-{layout} unlocked",
+  "@profileLayoutUnlocked": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLayoutLocked": "Type-{layout} locked",
+  "@profileLayoutLocked": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLayoutNone": "This ship has no Type-C",
+  "profileCloseFtl": "Close FTL before you save: the game writes the profile when it quits.",
+  "profileVictory": "Victory",
+  "statBest": "Best",
+  "statTotal": "Total",
+  "statShipsDefeated": "Ships defeated",
+  "statBeaconsExplored": "Beacons explored",
+  "statScrapCollected": "Scrap collected",
+  "statCrewHired": "Crew hired",
+  "statGamesPlayed": "Games played",
+  "statVictories": "Victories",
+  "errorNoProfile": "No profile at {path}. FTL writes ae_prof.sav when it quits for the first time. Start FTL once and quit it.",
+  "@errorNoProfile": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "profileBackups": "Backups",
+  "floorTitle": "Floorplan",
+  "floorHint": "Click a system symbol for its levels, fire and breaches. Click a square to light or put out a fire, add or seal a breach, set the oxygen of its room, or pick a crew member standing there.",
+  "floorRoom": "Room {room}",
+  "@floorRoom": {
+    "placeholders": {
+      "room": {
+        "type": "int"
+      }
+    }
+  },
+  "floorFire": "Fire",
+  "floorPutOut": "Put out",
+  "floorBreach": "Hull breach",
+  "floorSeal": "Seal",
+  "squareLightFire": "Light fire",
+  "squarePutOutFire": "Put out fire",
+  "squareAddBreach": "Add breach",
+  "squareSealBreach": "Seal breach",
+  "floorOxygen": "Oxygen",
+  "floorOxygenValue": "Oxygen {percent}%",
+  "@floorOxygenValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "floorOxygenSet": "Set",
+  "fieldOxygen": "Oxygen: {name}",
+  "@fieldOxygen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "floorClose": "Close",
+  "fieldFire": "Fire: {name}",
+  "@fieldFire": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldBreach": "Hull breach: {name}",
+  "@fieldBreach": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "actionMaxEverything": "Max everything",
+  "actionCrewFullyTrained": "Train crew fully",
+  "actionRepairShip": "Repair ship",
+  "actionHealCrew": "Heal crew",
+  "actionNothing": "{action}: nothing to change",
+  "@actionNothing": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "noteHullAtEditorCap": "Maximum hull unknown without ftl.dat: hull set to the editor cap {count}",
+  "@noteHullAtEditorCap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteSystemsAtEditorCap": "A system has no limit in the ship blueprint: it went to the cap of unmodded FTL",
+  "noteRoomsNotDecoded": "Rooms not decoded (no ship layout): fires and breaches unknown",
+  "paletteHint": "Search fields, actions and areas",
+  "paletteNoMatch": "No match",
+  "paletteArea": "Area",
+  "paletteAction": "Action",
+  "paletteResource": "Resource",
+  "paletteSkill": "Crew · Skill",
+  "paletteHealth": "Crew · Health",
+  "paletteSystem": "System",
+  "paletteAugment": "Augment",
+  "paletteFire": "Floorplan · Fire",
+  "paletteBreach": "Floorplan · Breach",
+  "paletteOxygen": "Floorplan · Oxygen",
+  "paletteBeacon": "Map · Beacon",
+  "profileUnlockLayout": "{ship}: unlock Type-{layout}",
+  "@profileUnlockLayout": {
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      },
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLockLayout": "{ship}: lock Type-{layout}",
+  "@profileLockLayout": {
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      },
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLockRemoves": "Removes: {achievements}",
+  "@profileLockRemoves": {
+    "placeholders": {
+      "achievements": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLayoutBRule": "Type-B has no flag of its own: FTL unlocks it from two of the ship's three achievements. Unlocking it adds the missing ones on Easy, locking it removes them until one is left.",
+  "profileLayoutClick": "{state}. Click to change.",
+  "@profileLayoutClick": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAddAchievement": "Add achievement",
+  "profileAchievementAdd": "Add {name} on {difficulty}",
+  "@profileAchievementAdd": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "difficulty": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAchievementRemove": "Remove {name}",
+  "@profileAchievementRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAchievementSet": "{name} on {difficulty}",
+  "@profileAchievementSet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "difficulty": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAchievementRemoveButton": "Remove",
+  "profileAchievementRemoved": "Removed",
+  "profileAchievementDifficulty": "Difficulty",
+  "equipInstall": "Install",
+  "equipSystemDamage": "{name}: broken bars",
+  "@equipSystemDamage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipSystemIon": "{name}: ion lock",
+  "@equipSystemIon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipDamaged": "{count} broken",
+  "@equipDamaged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "equipIonTip": "Ion lock {count} of 5. Click: one more, after 5 none. Right-click: a number.",
+  "@equipIonTip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "equipZoltanShield": "{name}: Zoltan shield",
+  "@equipZoltanShield": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipZoltanTip": "Zoltan shield {count} of {max}. Click a bar: that many, the top bar one less. Right-click: a number.",
+  "@equipZoltanTip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "equipSystemInstalled": "{name} installed",
+  "@equipSystemInstalled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "equipBlockNoGameData": "Needs ftl.dat: the ship blueprint names the rooms for systems.",
+  "equipBlockNoRoom": "The ship has no room for this system.",
+  "equipBlockNotInFormat": "This save format has no place for this system.",
+  "equipBlockArtillery": "FTL gives artillery only to the ships that start with it.",
+  "equipBlockSystemLimit": "The ship holds 8 systems, the most FTL sells. Remove one first.",
+  "equipBlockSubsystemLimit": "The ship holds 4 subsystems, the most FTL sells. Remove one first.",
+  "equipBlockStartingSystem": "The ship starts with this system. FTL builds it again when it loads the save.",
+  "equipBlockSwapBack": "The ship starts with a Medbay or Clone Bay. Install the other one to swap them.",
+  "equipBlockItemsInSlots": "Weapons or drones are in its slots. Remove them first.",
+  "equipBlockNotDecoded": "A part of the save this changes is not decoded (ftl.dat).",
+  "equipBlockNoStation": "On an enemy ship FTL puts the station of this system on a random square.",
+  "shipPlayer": "Your ship",
+  "shipEnemy": "Enemy ship",
+  "shipEnemyField": "Enemy ship: {field}",
+  "@shipEnemyField": {
+    "description": "A field of the ship at the current beacon in the change sheet and the command palette.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "shipRename": "Rename ship",
+  "fieldShipName": "Ship name",
+  "fieldShipType": "Ship type",
+  "fieldDifficulty": "Difficulty",
+  "shipTypeLayout": "{name} · Type {layout}",
+  "@shipTypeLayout": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "shipChangeType": "Change ship type",
+  "shipChangeDifficulty": "Change difficulty",
+  "shipTypeNote": "A type fits the save only with the same rooms and doors: FTL reads the stored rooms, doors and crew positions on the floor of the new type. No two hangar ships share them.",
+  "shipDifficultyNote": "FTL applies a new difficulty from the next load on: rewards, enemy ships, door health, the score.",
+  "shipSectorFixed": "The sector follows the sector tree. Jump to another sector on the Map page, in the sector tree.",
+  "typeBlockOtherLayout": "Other rooms and doors",
+  "typeBlockSystemRoom": "The {system} system sits in other rooms",
+  "@typeBlockSystemRoom": {
+    "placeholders": {
+      "system": {
+        "type": "String"
+      }
+    }
+  },
+  "typeBlockStartSystem": "Starts with the {system} system, which this ship lacks",
+  "@typeBlockStartSystem": {
+    "placeholders": {
+      "system": {
+        "type": "String"
+      }
+    }
+  },
+  "typeBlockWeaponSlots": "Too few weapon slots",
+  "typeBlockDroneSlots": "Too few drone slots",
+  "typeBlockUnknownShip": "Not in ftl.dat",
+  "typeBlockNoGameData": "Needs ftl.dat",
+  "typeBlockNotDecoded": "The rooms of the ship are not decoded",
+  "typeBlockEnemyShip": "Only the player ship changes its type",
+  "difficultyBlockFlagship": "The rebel flagship is on the map: FTL rebuilds its beacons by difficulty, so the stored ones would not match.",
+  "difficultyBlockNotDecoded": "The sector map is not decoded, so the editor cannot check the difficulty.",
+  "equipReplaces": "Replaces the {name}",
+  "@equipReplaces": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expertWarningTitle": "Raw edits can break the save",
+  "expertWarning": "These are the fields of the file as the editor decodes them, edited without the rules of the other pages. A value FTL does not expect can crash the game or end the run. Save still checks that the file reads back and writes nothing else.",
+  "expertSearch": "Search path or value",
+  "expertNoFile": "Open a saved game to see its fields.",
+  "expertNoMatch": "No field matches.",
+  "expertShown": "{shown} of {total} fields",
+  "@expertShown": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "expertUnknownTag": "unknown",
+  "expertUnknownHint": "Nobody knows yet what these fields mean. Change one only to test a guess, and keep the backup.",
+  "expertUndecoded": "Undecoded bytes ({count})",
+  "@expertUndecoded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expertUndecodedHint": "The editor does not decode these bytes. It writes them back unchanged; they cannot be edited.",
+  "expertAllDecoded": "The editor decodes the whole file: no byte is left undecoded.",
+  "fieldRaw": "Raw: {path}",
+  "@fieldRaw": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldStateVar": "State var: {id}",
+  "@fieldStateVar": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "mapBeacon": "Beacon {n}",
+  "@mapBeacon": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "mapBeaconField": "Beacon {n}: {field}",
+  "@mapBeaconField": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "mapVisited": "Visited",
+  "mapNotVisited": "Not visited",
+  "mapUnvisit": "Mark unvisited",
+  "mapUnvisitHint": "Its event comes back when you arrive.",
+  "mapVisitKept": "Your ship is here; FTL keeps this visit.",
+  "mapSeen": "Revealed",
+  "mapHidden": "Hidden",
+  "mapReveal": "Reveal",
+  "mapHide": "Hide",
+  "mapShipHere": "Ship",
+  "mapStore": "Store",
+  "mapQuest": "Quest",
+  "mapEnemy": "Ship event",
+  "mapOvertaken": "Overtaken by the rebel fleet",
+  "mapForSale": "For sale",
+  "mapSoldOut": "Sold out",
+  "mapRestock": "Restock",
+  "mapSellOut": "Mark sold",
+  "mapStoreItemField": "Beacon {n} store: {item}",
+  "@mapStoreItemField": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "mapFleet": "Rebel fleet",
+  "mapFleetField": "Rebel fleet position",
+  "mapFleetOvertaken": "{count} of {total} beacons overtaken",
+  "@mapFleetOvertaken": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mapFleetBack": "Back one jump",
+  "mapFleetStart": "Sector start",
+  "mapFleetLastStand": "In the Last Stand the fleet follows the flagship; FTL ignores its circle.",
+  "mapFleetUnknown": "The beacon positions are unknown, so the fleet cannot be moved.",
+  "mapLayoutNative": "This game uses the random numbers of its OS; the beacon positions are unknown.",
+  "mapLayoutMismatch": "The layout seed builds another beacon count than the file holds; the positions are unknown.",
+  "mapNone": "This save holds no sector map.",
+  "mapClose": "Close",
+  "crewAdd": "Add crew member",
+  "crewAddFull": "FTL takes no more crew on this ship",
+  "crewNew": "New",
+  "crewRemove": "Remove from the ship",
+  "crewKeep": "Keep aboard",
+  "crewRemoveLast": "The last crew member of a side stays",
+  "crewRemoved": "Removed",
+  "crewLook": "Look",
+  "crewChangeLook": "Change look",
+  "crewLookNote": "The looks of FTL's character creator for this race.",
+  "crewMale": "Male",
+  "crewFemale": "Female",
+  "fieldCrewSex": "Sex",
+  "fieldCrewColor": "Color layer {layer}",
+  "@fieldCrewColor": {
+    "placeholders": {
+      "layer": {
+        "type": "int"
+      }
+    }
+  },
+  "crewColor": "Color {number}",
+  "@crewColor": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "fieldCrewAdd": "New crew members",
+  "fieldCrewRemove": "Remove",
+  "crewAboard": "Aboard",
+  "mapFleetForward": "Forward one jump",
+  "mapShipField": "Ship position",
+  "mapMoveShip": "Move ship here",
+  "mapMoveHint": "Arrives like a return: no enemy, no event, no hazard.",
+  "mapMoveBlockLastStand": "In the Last Stand the ship follows the flagship's path.",
+  "mapMoveBlockCrew": "A crew member is aboard the other ship; a jump would leave them there.",
+  "mapMoveBlockFleet": "The rebel fleet holds this beacon; FTL keeps its fleet event, which needs a ship.",
+  "mapMoveBlockQuest": "A quest waits here; FTL would play its event again without its ship.",
+  "mapMoveBlockUnknown": "The ship's situation is not decoded; it needs ftl.dat.",
+  "mapStoreAdd": "Make a store",
+  "mapStoreRemove": "Remove the store",
+  "mapStoreAddHint": "FTL loads a stored stock at any beacon; a new store sells weapons, drones and augments.",
+  "mapKindsNote": "Quest, distress, nebula and other events are not in the save: FTL builds them from the event lists of ftl.dat.",
+  "mapSectorsNote": "Other sectors: open the sector tree to jump there.",
+  "mapSwapItem": "Swap item",
+  "mapNoChoices": "No other items of this kind without ftl.dat.",
+  "mapBeacons": "Beacons",
+  "sectorTree": "Sector tree",
+  "sectorCivilian": "Civilian",
+  "sectorHostile": "Hostile",
+  "sectorNebula": "Nebula",
+  "sectorJumpField": "Sector jump",
+  "sectorJumpHere": "Jump here",
+  "sectorJumpHint": "Click a sector to jump there: the ship arrives at its start beacon.",
+  "sectorJumpArrival": "The ship arrives at the start beacon of a new map of this sector, as after a jump: the rebel fleet starts over, the beacons and stores of this sector are new.",
+  "sectorShipHere": "Your ship is in this sector.",
+  "sectorJumpPendingNote": "A sector jump is pending: this is the new sector. Save the jump before you edit its beacons.",
+  "sectorJumpLastStand": "FTL builds the Last Stand with the rebel flagship, which the editor does not place.",
+  "sectorJumpQuests": "Quests wait for the next sector; FTL places them on its beacons with its own random numbers.",
+  "sectorJumpHidden": "The ship is in the hidden Crystal sector, which is not in the tree.",
+  "sectorTreeNative": "This game uses the random numbers of its OS; the sector tree is unknown.",
+  "sectorTreeNoGameData": "The sector tree needs the sector lists of ftl.dat.",
+  "sectorTreeMismatch": "The tree seed builds another sector count than the file holds; the sector tree is unknown."
+}

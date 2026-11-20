@@ -1,0 +1,284 @@
+# Builds the release artifacts and attaches them to the GitHub release of a tag.
+#
+# Triggers:
+# - a pushed tag v<version>: builds that tag; creates the release when it is missing
+# - workflow_dispatch with `tag`: builds the ref the workflow runs on (default
+#   main) and attaches to the existing release of `tag`; used to add builds to
+#   a release made before this workflow existed
+#
+# The version of app/pubspec.yaml must equal the tag without the v.
+# Asset names carry no version, so the README links
+# releases/latest/download/<asset> stay valid for every release:
+#   FTL-Save-Editor-linux-x64.tar.gz      Flutter bundle
+#   FTL-Save-Editor-windows-x64.zip       runner Release folder plus the MSVC runtime DLLs
+#   FTL-Save-Editor-macos-universal.dmg   arm64 + x86_64, signed ad-hoc, not notarized
+#   ftled-<os>-<arch>.tar.gz / .zip       the command line tool (macos-universal, linux-x64, windows-x64)
+#   SHA256SUMS.txt
+# `dry_run` (manual runs) builds and scans everything and uploads nothing.
+# The job publish-crates puts the Rust crates on crates.io (see the job).
+# An upload never replaces an asset that is already on the release
+# (`gh release upload` without --clobber fails instead).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach to (for example v0.2.0)"
+        required: true
+      dry_run:
+        description: "Build and scan only, upload nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  RUST_VERSION: "1.99.0"
+  FLUTTER_VERSION: "3.50.0"
+  CARGO_TERM_COLOR: always
+  TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x64
+            os: ubuntu-latest
+          - name: windows-x64
+            os: windows-latest
+          - name: macos-universal
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Version matches the tag
+        run: |
+          version=$(sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' app/pubspec.yaml)
+          if [ "v$version" != "$TAG" ]; then
+            echo "app/pubspec.yaml says $version, the tag is $TAG" >&2
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+      - name: Linux desktop packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          rustup default "$RUST_VERSION"
+          if [ "$RUNNER_OS" = macOS ]; then rustup target add aarch64-apple-darwin x86_64-apple-darwin; fi
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - uses: oven-sh/setup-bun@v2.2.0
+      - name: Build folders outside the home folder
+        # Binaries keep the absolute paths of their sources (Swift and C
+        # objects, the Dart plugin registrant, the PDB path of an exe). The
+        # build runs in an export of the checkout under a neutral folder with
+        # its own pub cache; app/hook/build.dart and RUSTFLAGS remap the Rust
+        # paths. scripts/scan-binaries.ts refuses what is left.
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then base="C:/ftl-editor-ci"; else base="/tmp/ftl-editor-ci"; fi
+          mkdir -p "$base/src" "$base/pub-cache"
+          git archive --format=tar HEAD | tar -x -f - -C "$base/src"
+          if [ "$RUNNER_OS" = Windows ]; then
+            home="$USERPROFILE"; src=$(cygpath -w "$base/src")
+          else
+            home="$HOME"; src="$base/src"
+          fi
+          {
+            echo "BUILD_ROOT=$base/src"
+            echo "BUILD_PUB_CACHE=$base/pub-cache"
+            echo "RELEASE_RUSTFLAGS=--remap-path-prefix=$home/.cargo=/cargo --remap-path-prefix=$home/.rustup=/rustup --remap-path-prefix=$src=/src"
+          } >> "$GITHUB_ENV"
+
+      - name: Build ftled
+        run: |
+          mkdir -p dist
+          cd "$BUILD_ROOT"
+          export RUSTFLAGS="$RELEASE_RUSTFLAGS"
+          out="$GITHUB_WORKSPACE/dist/ftled-${{ matrix.name }}"
+          mkdir -p "$out"
+          if [ "$RUNNER_OS" = macOS ]; then
+            cargo build --release --locked -p ftled --target aarch64-apple-darwin
+            cargo build --release --locked -p ftled --target x86_64-apple-darwin
+            lipo -create -output "$out/ftled" \
+              target/aarch64-apple-darwin/release/ftled target/x86_64-apple-darwin/release/ftled
+            lipo -info "$out/ftled"
+          elif [ "$RUNNER_OS" = Windows ]; then
+            cargo build --release --locked -p ftled
+            cp target/release/ftled.exe "$out/"
+          else
+            cargo build --release --locked -p ftled
+            cp target/release/ftled "$out/"
+          fi
+          cp LICENSE README.md "$out/"
+
+      - name: Build the app (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd "$BUILD_ROOT/app"
+          PUB_CACHE="$BUILD_PUB_CACHE" flutter pub get --enforce-lockfile
+          PUB_CACHE="$BUILD_PUB_CACHE" flutter build linux --release
+          out="$GITHUB_WORKSPACE/dist/FTL-Save-Editor-linux-x64"
+          cp -R build/linux/x64/release/bundle "$out"
+          cp ../LICENSE "$out/"
+
+      - name: Build the app (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd "$BUILD_ROOT/app"
+          PUB_CACHE="$BUILD_PUB_CACHE" flutter pub get --enforce-lockfile
+          PUB_CACHE="$BUILD_PUB_CACHE" flutter build windows --release
+          out="$GITHUB_WORKSPACE/dist/FTL-Save-Editor-windows-x64"
+          cp -R build/windows/x64/runner/Release "$out"
+          cp ../LICENSE "$out/"
+          # The app and the Rust bridge link the MSVC runtime dynamically; ship
+          # it next to the exe, so a PC without the VC++ redistributable starts it.
+          for dll in msvcp140.dll vcruntime140.dll vcruntime140_1.dll; do
+            cp "/c/Windows/System32/$dll" "$out/"
+          done
+
+      - name: Build the app (macOS)
+        if: runner.os == 'macOS'
+        # build-dmg exports HEAD to its own folder under $TMPDIR, builds,
+        # signs ad-hoc and scans the app before it packs the DMG.
+        run: |
+          bun scripts/build-dmg.ts --no-receipt
+          app="$(bun -e 'console.log(require("node:fs").realpathSync(require("node:os").tmpdir()))')/ftl-editor-release-src/app/build/macos/Build/Products/Release/FTL Save Editor.app"
+          lipo -info "$app/Contents/MacOS/FTL Save Editor" | grep -Eq 'x86_64 arm64|arm64 x86_64'
+          lipo -info "$app/Contents/Frameworks/ftl_bridge.framework/ftl_bridge" | grep -Eq 'x86_64 arm64|arm64 x86_64'
+          mv "dist/FTL-Save-Editor-$VERSION-macos-arm64.dmg" "dist/FTL-Save-Editor-macos-universal.dmg"
+          mkdir -p "$RUNNER_TEMP/dmg"
+          hdiutil attach -nobrowse -readonly -mountpoint "$RUNNER_TEMP/dmg" "dist/FTL-Save-Editor-macos-universal.dmg"
+          status=0
+          bun scripts/scan-binaries.ts "$RUNNER_TEMP/dmg/FTL Save Editor.app" --forbid "$GITHUB_WORKSPACE" || status=$?
+          hdiutil detach "$RUNNER_TEMP/dmg"
+          exit $status
+
+      - name: Scan and pack
+        run: |
+          cd dist
+          for d in */; do
+            d="${d%/}"
+            bun "$GITHUB_WORKSPACE/scripts/scan-binaries.ts" "$d" --forbid "$GITHUB_WORKSPACE"
+            if [ "$RUNNER_OS" = Windows ]; then
+              7z a -tzip "$d.zip" "$d" > /dev/null
+            else
+              tar -czf "$d.tar.gz" "$d"
+            fi
+            rm -r "$d"
+          done
+
+      - name: List
+        run: ls -l dist
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-${{ matrix.name }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Attach to the release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Create the release when it is missing
+        if: github.event_name == 'push'
+        run: |
+          gh release view "$TAG" > /dev/null 2>&1 || \
+            gh release create "$TAG" --verify-tag --title "FTL Save Editor ${TAG#v}" --generate-notes
+      - uses: actions/checkout@v7.0.1
+        with:
+          path: src
+      - uses: oven-sh/setup-bun@v2.2.0
+      - name: Scan the downloaded archives
+        run: |
+          mkdir -p "$RUNNER_TEMP/unpacked"
+          for f in dist/*.tar.gz; do tar -xzf "$f" -C "$RUNNER_TEMP/unpacked"; done
+          for f in dist/*.zip; do unzip -q "$f" -d "$RUNNER_TEMP/unpacked"; done
+          bun src/scripts/scan-binaries.ts "$RUNNER_TEMP/unpacked"/*
+      - name: Upload
+        if: ${{ !inputs.dry_run }}
+        run: |
+          ls -l dist
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          gh release upload "$TAG" dist/*
+          gh release view "$TAG" --json assets --jq '.assets[].name'
+
+  publish-crates:
+    # The Rust crates to crates.io, in dependency order. A version that is
+    # already on crates.io is skipped. Auth: Trusted Publishing (OIDC through
+    # rust-lang/crates-io-auth-action) for a crate that has this workflow as
+    # its trusted publisher; else the secret CARGO_REGISTRY_TOKEN (the first
+    # publish of a new crate needs it). A dry run only packages and verifies.
+    name: Publish crates
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CRATES: "ftled-core ftled-sav ftled-assets ftled-app ftled"
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          rustup default "$RUST_VERSION"
+      - name: Package and verify (dry run)
+        run: cargo publish --dry-run --locked $(printf -- '-p %s ' $CRATES)
+      - name: Trusted Publishing token
+        id: auth
+        if: ${{ !inputs.dry_run }}
+        continue-on-error: true
+        uses: rust-lang/crates-io-auth-action@v1.0.6
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          TRUSTED_TOKEN: ${{ steps.auth.outputs.token }}
+          SECRET_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          version=$(sed -nE 's/^version = "([^"]+)"/\1/p' Cargo.toml | head -1)
+          for crate in $CRATES; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -A "ftl-editor-release (github.com/${{ github.repository }})" \
+              "https://crates.io/api/v1/crates/$crate/$version")
+            if [ "$code" = 200 ]; then
+              echo "$crate $version is on crates.io; skipped"
+              continue
+            fi
+            if [ -n "$TRUSTED_TOKEN" ] && CARGO_REGISTRY_TOKEN="$TRUSTED_TOKEN" cargo publish --locked -p "$crate"; then
+              echo "$crate $version published (Trusted Publishing)"
+            elif [ -n "$SECRET_TOKEN" ]; then
+              CARGO_REGISTRY_TOKEN="$SECRET_TOKEN" cargo publish --locked -p "$crate"
+              echo "$crate $version published (CARGO_REGISTRY_TOKEN)"
+            else
+              # Until the secret exists, the release stays green and says why.
+              echo "::warning::$crate $version not published: no trusted publisher and no CARGO_REGISTRY_TOKEN secret"
+              exit 0
+            fi
+          done

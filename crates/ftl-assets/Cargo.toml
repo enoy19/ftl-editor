@@ -1,0 +1,28 @@
+[package]
+name = "ftled-assets"
+description = "Reads FTL's ftl.dat: blueprints, display names, ship layouts and sprites, as plain values."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords.workspace = true
+categories = ["game-development", "parser-implementations"]
+# Only the sources ship; tests and fixtures stay in the repository.
+include = ["src/**/*", "Cargo.toml"]
+
+[lib]
+# The package is ftled-assets on crates.io; the crate keeps its name in code.
+name = "ftl_assets"
+path = "src/lib.rs"
+
+[dependencies]
+ftldat.workspace = true
+image.workspace = true
+quick-xml.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
