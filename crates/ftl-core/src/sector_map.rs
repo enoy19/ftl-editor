@@ -310,9 +310,11 @@ impl std::fmt::Display for NoLayout {
 mod tests {
     use super::*;
 
-    /// Java `FTL_1_6_Random`: the first three `rand()` after `srand(seed)`,
-    /// printed by the oracle `RandOracle` over `FTLProfileEditor.jar` on
-    /// 2026-11-19.
+    /// Java `net.blerf.ftl.parser.random.FTL_1_6_Random` of the Java editor
+    /// (`reference/ftl-profile-editor`): the first three `rand()` after
+    /// `srand(seed)`, printed on 2026-11-19 by a throwaway class on the
+    /// classpath of `FTLProfileEditor.jar` (`new FTL_1_6_Random()`, `srand`,
+    /// three `rand()`); the same three calls reproduce them.
     #[test]
     fn random32_matches_java_ftl_1_6_random() {
         for (seed, java) in [

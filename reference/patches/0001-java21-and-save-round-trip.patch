@@ -1,0 +1,126 @@
+# Builds the editor on Java 21 (compiler release 21, JAXB as dependencies) and adds net.blerf.ftl.tools.SaveRoundTrip, a saved-game round-trip probe.
+diff --git a/.gitignore b/.gitignore
+index 2b925ad..cb30cfe 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -20,3 +20,7 @@ Desktop.ini
+ # IdeaJ
+ *.idea
+ *.iml
++
++# Runtime files the editor writes into its working directory
++ftl-editor-log.txt
++ftl-editor.cfg
+diff --git a/pom.xml b/pom.xml
+index ad3d57d..f71f369 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -6,9 +6,7 @@
+ 	<name>FTL Profile Editor</name>
+ 
+ 	<properties>
+-		<jdk.version>1.6</jdk.version>
+-		<maven.compiler.source>1.6</maven.compiler.source>
+-		<maven.compiler.target>1.6</maven.compiler.target>
++		<maven.compiler.release>21</maven.compiler.release>
+ 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+ 	</properties>
+ 
+@@ -20,6 +18,17 @@
+ 		non-existent class files.
+ 	-->
+ 	<dependencies>
++		<!-- JAXB left the JDK in Java 11; the javax namespace stays available as these artifacts. -->
++		<dependency>
++			<groupId>javax.xml.bind</groupId>
++			<artifactId>jaxb-api</artifactId>
++			<version>2.3.1</version>
++		</dependency>
++		<dependency>
++			<groupId>org.glassfish.jaxb</groupId>
++			<artifactId>jaxb-runtime</artifactId>
++			<version>2.3.9</version>
++		</dependency>
+ 		<dependency>
+ 			<groupId>org.slf4j</groupId>
+ 			<artifactId>slf4j-api</artifactId>
+@@ -72,7 +81,7 @@
+ 		<plugin>
+ 			<groupId>org.apache.maven.plugins</groupId>
+ 			<artifactId>maven-compiler-plugin</artifactId>
+-			<version>3.1</version>
++			<version>3.13.0</version>
+ 			<configuration>
+ 				<compilerArgument>-Xlint:unchecked</compilerArgument>
+ 				<compilerArgument>-Xlint:deprecation</compilerArgument>
+diff --git a/src/main/java/net/blerf/ftl/tools/SaveRoundTrip.java b/src/main/java/net/blerf/ftl/tools/SaveRoundTrip.java
+new file mode 100644
+index 0000000..dbc21d8
+--- /dev/null
++++ b/src/main/java/net/blerf/ftl/tools/SaveRoundTrip.java
+@@ -0,0 +1,65 @@
++package net.blerf.ftl.tools;
++
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.nio.file.Files;
++
++import net.blerf.ftl.parser.DataManager;
++import net.blerf.ftl.parser.DefaultDataManager;
++import net.blerf.ftl.parser.SavedGameParser;
++import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
++
++
++/**
++ * Reads a saved game, writes it back to memory and compares the bytes.
++ *
++ * Usage: java -cp FTLProfileEditor.jar net.blerf.ftl.tools.SaveRoundTrip DATS_DIR SAV_FILE [OUT_FILE]
++ *
++ * DATS_DIR is the folder that holds ftl.dat (on macOS: FTL.app/Contents/Resources).
++ * Exit 0: the written bytes equal the input. Exit 1: they differ; the first
++ * differing offset is printed and, with OUT_FILE, the written bytes are saved.
++ * Exit 2: usage or read error. The input file is never modified.
++ */
++public class SaveRoundTrip {
++
++	public static void main( String[] args ) throws Exception {
++		if ( args.length < 2 ) {
++			System.err.println( "Usage: SaveRoundTrip DATS_DIR SAV_FILE [OUT_FILE]" );
++			System.exit( 2 );
++		}
++		File datsDir = new File( args[0] );
++		File savFile = new File( args[1] );
++
++		DefaultDataManager dataManager = new DefaultDataManager( datsDir );
++		dataManager.setDLCEnabledByDefault( true );  // Same as the GUI: AE ships live in dlcBlueprints.xml.
++		DataManager.setInstance( dataManager );
++
++		byte[] original = Files.readAllBytes( savFile.toPath() );
++
++		SavedGameParser parser = new SavedGameParser();
++		SavedGameState state = parser.readSavedGame( savFile );
++		System.out.println( "fileFormat="+ state.getFileFormat() +" ship="+ state.getPlayerShipName() +" sector="+ (state.getSectorNumber()+1) );
++		System.out.println( "scrap="+ state.getPlayerShip().getScrapAmt() +" fuel="+ state.getPlayerShip().getFuelAmt() +" missiles="+ state.getPlayerShip().getMissilesAmt() +" droneParts="+ state.getPlayerShip().getDronePartsAmt() +" hull="+ state.getPlayerShip().getHullAmt() );
++
++		ByteArrayOutputStream out = new ByteArrayOutputStream();
++		parser.writeSavedGame( out, state );
++		byte[] written = out.toByteArray();
++
++		if ( args.length >= 3 ) {
++			Files.write( new File( args[2] ).toPath(), written );
++		}
++
++		int n = Math.min( original.length, written.length );
++		for ( int i=0; i < n; i++ ) {
++			if ( original[i] != written[i] ) {
++				System.out.println( String.format( "DIFFER at offset %d (0x%X): original=%d written=%d, sizes %d/%d", i, i, original[i], written[i], original.length, written.length ) );
++				System.exit( 1 );
++			}
++		}
++		if ( original.length != written.length ) {
++			System.out.println( String.format( "DIFFER in size: original=%d written=%d", original.length, written.length ) );
++			System.exit( 1 );
++		}
++		System.out.println( "IDENTICAL: "+ original.length +" bytes" );
++	}
++}

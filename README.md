@@ -85,10 +85,15 @@ Prerequisites:
   rustup installs it on first build)
 - Flutter 3.x with Dart 3.14 or newer, with desktop support for your OS
 - For the macOS app: Xcode
+- [bun](https://bun.sh) for the scripts under `scripts/`
+- `flutter_rust_bridge_codegen` in the version of `flutter_rust_bridge` in
+  `Cargo.lock` (`bun scripts/codegen.ts --install` builds it with cargo)
 - Optional: an FTL installation, for game images and fonts in the app
-- Optional: [bun](https://bun.sh) for the scripts under `scripts/`
+
+The bridge bindings and the localizations are generated, not in git:
 
 ```sh
+bun scripts/codegen.ts --install          # once after a clone, again after a change in app/rust/src/api
 cargo test                                # core, codecs, app
 cd app && flutter run -d macos            # or -d windows, -d linux
 bun scripts/build-dmg.ts --verify         # macOS: dist/FTL-Save-Editor-<version>-macos-arm64.dmg
@@ -96,6 +101,23 @@ bun scripts/build-dmg.ts --verify         # macOS: dist/FTL-Save-Editor-<version
 
 Architecture, contracts, the full gate and contributor rules are in
 [AGENTS.md](AGENTS.md).
+
+## Checking a save against the Java editor
+
+[FTL Profile Editor](https://github.com/Vhati/ftl-profile-editor) by Vhati is
+the reference for the file format. `reference/ftl-profile-editor` pins its
+public upstream as a submodule; `reference/patches/` adds a Java 21 build and
+two small round-trip probes. With FTL installed, Java 21 or later and Maven:
+
+```sh
+bun scripts/oracle.ts crates/ftl-sav/tests/fixtures/continue-1.6.13-format11.sav
+bun scripts/oracle.ts --profile crates/ftl-sav/tests/fixtures/profile/ae_prof-1.6.13.sav
+```
+
+The script checks out the submodule, applies the patches, builds the Java
+editor, reads the file with it, writes it back and prints `IDENTICAL` when
+the bytes match (exit code 0). `--resources <dir>` names the folder that holds
+`ftl.dat` when the script does not find it; `--help` lists everything.
 
 ## Screenshots
 

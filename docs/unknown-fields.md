@@ -20,7 +20,9 @@ pod (`crates/ftl-sav/tests/roundtrip.rs`).
   x86_64, with symbols), decompiled with Ghidra 12.1.4 headless. For every
   field the `SaveState`, `Save` or `SaveGame` function that writes it gives
   the offset in the object. Addresses below are function entry points of
-  that binary.
+  that binary. The Ghidra project behind them is not published, because it
+  holds FTL's own code; import the binary into Ghidra and go to an address
+  to check a field.
 - **Names**: the struct layouts of the FTL: Hyperspace project,
   `libzhlgen/test/functions/mac/FTLGameStripped.h` (commit `1b05a07`,
   2026-10-19), © the FTL: Hyperspace authors, GPL-3.0-or-later. Only field

@@ -1,0 +1,48 @@
+# Generates the files that are not in git (the flutter_rust_bridge bindings
+# and the Flutter localizations) once, for every job of ci.yml and release.yml.
+# The output is platform independent. The artifact `generated` holds
+# generated.tar with paths relative to the repository root; a job unpacks it
+# with `tar -xf generated.tar -C <root>`.
+# The codegen version is the pin of scripts/codegen.ts (flutter_rust_bridge in
+# Cargo.lock and app/pubspec.lock); `--install` builds exactly that version
+# with --locked when ~/.cargo/bin (cached by rust-cache) holds another one.
+name: Codegen
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  RUST_VERSION: "1.99.0"
+  FLUTTER_VERSION: "3.50.0"
+  CARGO_TERM_COLOR: always
+
+jobs:
+  codegen:
+    name: Codegen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          rustup default "$RUST_VERSION"
+      - uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: codegen
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - uses: oven-sh/setup-bun@v2.2.0
+      - name: Generate
+        run: bun scripts/codegen.ts --install --pack generated.tar
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: generated
+          path: generated.tar
+          if-no-files-found: error
+          retention-days: 1

@@ -1,0 +1,73 @@
+# Adds net.blerf.ftl.tools.ProfileRoundTrip, a profile round-trip probe that also lists the player ships with achievements and B/C layouts.
+diff --git a/src/main/java/net/blerf/ftl/tools/ProfileRoundTrip.java b/src/main/java/net/blerf/ftl/tools/ProfileRoundTrip.java
+new file mode 100644
+index 0000000..c172772
+--- /dev/null
++++ b/src/main/java/net/blerf/ftl/tools/ProfileRoundTrip.java
+@@ -0,0 +1,66 @@
++package net.blerf.ftl.tools;
++
++import java.io.ByteArrayInputStream;
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.nio.file.Files;
++import java.util.List;
++
++import net.blerf.ftl.model.Profile;
++import net.blerf.ftl.parser.DataManager;
++import net.blerf.ftl.parser.DefaultDataManager;
++import net.blerf.ftl.parser.ProfileParser;
++import net.blerf.ftl.xml.Achievement;
++import net.blerf.ftl.xml.ShipBlueprint;
++
++
++/**
++ * Reads a profile (ae_prof.sav or prof.sav), writes it back to memory and
++ * compares the bytes; also lists the player ships with their achievements
++ * and which layouts (B, C) exist.
++ *
++ * Usage: java -cp FTLProfileEditor.jar net.blerf.ftl.tools.ProfileRoundTrip DATS_DIR [PROFILE_FILE]
++ *
++ * DATS_DIR is the folder that holds ftl.dat (on macOS: FTL.app/Contents/Resources).
++ * Without PROFILE_FILE it prints the ship table only.
++ * Exit 0: identical (or no file given). Exit 1: the bytes differ. Exit 2: usage.
++ * The input file is never modified.
++ */
++public class ProfileRoundTrip {
++
++	public static void main( String[] args ) throws Exception {
++		if ( args.length < 1 ) {
++			System.err.println( "Usage: ProfileRoundTrip DATS_DIR [PROFILE_FILE]" );
++			System.exit( 2 );
++		}
++		DefaultDataManager dm = new DefaultDataManager( new File( args[0] ) );
++		dm.setDLCEnabledByDefault( true );  // Same as the GUI.
++		DataManager.setInstance( dm );
++
++		for ( String base : dm.getPlayerShipBaseIds() ) {
++			ShipBlueprint variantA = dm.getPlayerShipVariant( base, 0 );
++			StringBuilder sb = new StringBuilder( base +":" );
++			List<Achievement> achs = dm.getShipAchievements( variantA );
++			if ( achs != null ) {
++				for ( Achievement ach : achs ) {
++					sb.append( " "+ ach.getId() + (ach.isVictory() ? "[V]" : "") + (ach.isQuest() ? "[Q]" : "") );
++				}
++			}
++			sb.append( " B="+ (dm.getPlayerShipVariant( base, 1 ) != null) +" C="+ (dm.getPlayerShipVariant( base, 2 ) != null) );
++			System.out.println( sb );
++		}
++
++		if ( args.length < 2 ) return;
++
++		byte[] original = Files.readAllBytes( new File( args[1] ).toPath() );
++		ProfileParser parser = new ProfileParser();
++		Profile profile = parser.readProfile( new ByteArrayInputStream( original ) );
++		ByteArrayOutputStream out = new ByteArrayOutputStream();
++		parser.writeProfile( out, profile );
++		byte[] written = out.toByteArray();
++
++		boolean same = java.util.Arrays.equals( original, written );
++		System.out.println( (same ? "IDENTICAL: " : "DIFFER: ") + original.length +"/"+ written.length +" bytes" );
++		if ( !same ) System.exit( 1 );
++	}
++}

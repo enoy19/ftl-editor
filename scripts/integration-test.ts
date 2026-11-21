@@ -16,7 +16,11 @@
 // The lock is a directory under the OS temp folder, created atomically with
 // mkdir. It holds the PID of the owner; a lock whose PID no longer runs is
 // stale and is taken over. Waiting prints who holds the lock every 30 s.
-// Exit code: the exit code of `flutter test`.
+//
+// Before the lock it runs scripts/codegen.ts: the bindings and localizations
+// are not in git (AGENTS.md, "Generated files").
+// Exit code: the exit code of scripts/codegen.ts when it fails, else the exit
+// code of `flutter test`.
 
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -25,6 +29,9 @@ import { join, resolve } from 'node:path'
 const lock = join(tmpdir(), 'ftl-editor-integration-test.lock')
 const pidFile = join(lock, 'pid')
 const appDir = resolve(import.meta.dir, '..', 'app')
+
+const codegen = Bun.spawnSync(['bun', resolve(import.meta.dir, 'codegen.ts')], { stdout: 'inherit', stderr: 'inherit' })
+if (codegen.exitCode !== 0) process.exit(codegen.exitCode ?? 1)
 
 function alive(pid: number): boolean {
   try {

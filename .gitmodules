@@ -1,0 +1,4 @@
+[submodule "reference/ftl-profile-editor"]
+	path = reference/ftl-profile-editor
+	url = https://github.com/Vhati/ftl-profile-editor.git
+	branch = master

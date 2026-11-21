@@ -1,10 +1,13 @@
 #!/usr/bin/env bun
 // Builds the macOS app and packs it into a DMG installer.
 //
-//   bun scripts/build-dmg.ts [--no-build] [--verify] [--no-receipt]
+//   bun scripts/build-dmg.ts [--no-build] [--generated <tar>] [--verify] [--no-receipt]
 //
 // --no-build    pack the app of the last build in the build folder (step 2) as it
 //               is; default: export and `flutter build macos --release` first
+// --generated   unpack the generated files from <tar> (written by
+//               `scripts/codegen.ts --pack`) into the export instead of running
+//               scripts/codegen.ts there; CI generates once for every job
 // --verify      after the build: attach the DMG read-only, check the icon of the
 //               app inside against app_icon_256.png, start the app with
 //               `open -n`, check its process, end only that process, detach
@@ -15,8 +18,10 @@
 // 1. Refuse another host than macOS on arm64 (the DMG name says arm64).
 // 2. `git archive HEAD` into the build folder <tmpdir>/ftl-editor-release-src
 //    (emptied first; uncommitted changes are not built, a warning names
-//    them), then `flutter build macos --release` in its app/ (it also builds
-//    the Rust bridge) with PUB_CACHE=<tmpdir>/ftl-editor-release-pub-cache.
+//    them), then the generated files (`bun scripts/codegen.ts --root <export>`
+//    or the tar of --generated; they are not in git), then `flutter build
+//    macos --release` in its app/ (it also builds the Rust bridge) with
+//    PUB_CACHE=<tmpdir>/ftl-editor-release-pub-cache.
 //    Why: the Swift runner, the plugin objects and the Dart snapshot keep the
 //    absolute paths of their sources; a build in the checkout under the home
 //    folder would publish them. app/hook/build.dart remaps the Rust paths.
@@ -203,6 +208,7 @@ function main(): number {
   const { values } = parseArgs({
     options: {
       'no-build': { type: 'boolean', default: false },
+      generated: { type: 'string' },
       verify: { type: 'boolean', default: false },
       'no-receipt': { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
@@ -228,6 +234,14 @@ function main(): number {
       const tar = spawnSync('git', ['archive', '--format=tar', 'HEAD'], { cwd: ROOT, maxBuffer: 1 << 30 })
       if (tar.status !== 0) throw new StepError(`git archive exited ${tar.status}: ${tar.stderr.toString().trim()}`)
       run('tar', ['-x', '-f', '-', '-C', BUILD_ROOT], { input: tar.stdout })
+      if (values.generated) {
+        log(`unpack the generated files of ${values.generated}`)
+        run('tar', ['-x', '-f', resolve(values.generated), '-C', BUILD_ROOT])
+      } else {
+        log('bun scripts/codegen.ts')
+        // The export's own script, so the generated files follow the exported source.
+        run('bun', [join(BUILD_ROOT, 'scripts/codegen.ts'), '--root', BUILD_ROOT], { quiet: false })
+      }
       log('flutter build macos --release')
       run('flutter', ['build', 'macos', '--release'], {
         cwd: join(BUILD_ROOT, 'app'),

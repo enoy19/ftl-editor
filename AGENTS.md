@@ -19,7 +19,7 @@ Dependencies point inward. A crate may use only the crates above it in this list
 | `crates/ftl-cli` (package `ftled`) | `ftled`, a clap adapter | `ftl-app` only |
 | `app/rust` (`ftl_bridge`) | flutter_rust_bridge adapter, DTOs and an opaque `SaveSession` | `ftl-app` only |
 | `app/lib` | Flutter UI. Collects input, shows what Rust answers | the generated bindings only |
-| `reference/ftl-profile-editor` | Optional local checkout of [Vhati's Java editor](https://github.com/Vhati/ftl-profile-editor): format reference and oracle; not part of the public tree | — |
+| `reference/ftl-profile-editor` | Submodule of [Vhati's Java editor](https://github.com/Vhati/ftl-profile-editor), the public upstream at a pinned commit: format reference and oracle. `reference/patches/` holds the Java 21 build and the two round-trip probes; `scripts/oracle.ts` applies them | — |
 
 A rule (ranges, verify, backup, changed-on-disk check) lives in `ftl-core` or
 `ftl-app`, never in the CLI, the bridge or Dart. The CLI and the app call the
@@ -536,6 +536,7 @@ new view on rendered variants before it is built.
 ## Commands
 
 ```sh
+bun scripts/codegen.ts                      # the generated files (see "Generated files"); --install builds the pinned codegen
 cargo test                                  # core, codecs, app
 cargo clippy --all-targets
 cargo fmt --all --check                    # one rustfmt baseline (rustfmt.toml)
@@ -545,12 +546,14 @@ cd app && flutter test test                         # Dart unit tests
 bun scripts/integration-test.ts                    # real app + real Rust core; one run per machine (lock)
 bun scripts/integration-test.ts integration_test/actions_test.dart   # only the files named
 cd app && flutter run -d macos
-cd app && flutter_rust_bridge_codegen generate     # after a change in app/rust/src/api
 ```
 
 `rustfmt.toml` holds the one Rust baseline; `cargo fmt --all` formats and
-the gate checks it. Dart uses width 120: `dart format -l 120 <file>` (the
-default 80 reflows lines nobody changed).
+the gate checks it. rustfmt skips the generated `frb_generated.rs`
+(`#[rustfmt::skip]` in `app/rust/src/lib.rs`), so the check passes with or
+without the file and no `cargo fmt` follows the codegen. Dart uses width
+120: `dart format -l 120 <file>` (the default 80 reflows lines nobody
+changed).
 
 While a change is under work, run only the tests that cover it:
 `cargo test -p <crate> <filter>`, `flutter test test/<file>.dart`,
@@ -562,28 +565,55 @@ clippy --all-targets`, `cargo fmt --all --check` and `flutter analyze`
 without findings, `flutter test test` and the full integration test green.
 A Dart-only change skips the cargo steps.
 
-Oracle check against the Java editor (needs FTL installed and a checkout of
-the Java editor in `reference/ftl-profile-editor`, built with `mvn -q -B
-package -DskipTests`). The two round-trip tools below are small additions in
-the maintainer's fork; upstream has the parsers they call:
+Oracle check against [Vhati's Java editor](https://github.com/Vhati/ftl-profile-editor)
+(needs FTL installed, Java 21 or later and Maven):
 
 ```sh
-java -cp reference/ftl-profile-editor/target/FTLProfileEditor.jar \
-  net.blerf.ftl.tools.SaveRoundTrip "<FTL.app>/Contents/Resources" <file.sav>
+bun scripts/oracle.ts <file.sav>                     # SaveRoundTrip
+bun scripts/oracle.ts --profile [<ae_prof.sav>]      # ProfileRoundTrip
 ```
 
-It prints the resources the Java parser reads and whether its round trip is
-byte-identical. A file written by `ftled` must pass it. For a profile use
-`net.blerf.ftl.tools.ProfileRoundTrip "<FTL.app>/Contents/Resources" [ae_prof.sav]`
-from the same jar; it also lists the player ships with their achievements and
-B/C layouts.
+The script (its `--help` is the contract) checks out the submodule
+`reference/ftl-profile-editor` at its pinned upstream commit, applies
+`reference/patches/*.patch` idempotently (0001: Java 21 build and
+`SaveRoundTrip`, 0002: `ProfileRoundTrip`; upstream has the parsers they
+call), builds with `mvn -q -B package -DskipTests` and runs the probe with
+the FTL resources the app finds (or `--resources <dir>`). The probe prints
+the resources it reads and `IDENTICAL` or `DIFFER`; the exit code is its
+verdict. A file written by `ftled` must pass it. The profile probe also
+lists the player ships with their achievements and B/C layouts. After a run
+the submodule shows as modified (`m`): the applied patches and `target/`
+are local, never committed. A new probe is a new patch over the pinned
+commit: `git diff` in the submodule, written to `reference/patches/` with
+a one-line `#` header (git apply skips text before the first `diff`).
 
 ## Generated files
 
-`app/lib/src/rust/`, `app/rust/src/frb_generated.rs` and
-`app/lib/l10n/app_localizations*.dart` are generated and committed, so a clone
-builds without the codegen. Regenerate after an API or ARB change; never edit
-them by hand.
+`app/rust/src/frb_generated.rs`, `app/lib/src/rust/` (flutter_rust_bridge)
+and `app/lib/l10n/app_localizations*.dart` (`flutter gen-l10n`) are
+generated and gitignored; never edit them by hand. `bun scripts/codegen.ts`
+(its `--help` is the contract) writes all of them:
+`flutter_rust_bridge_codegen generate`, then `flutter gen-l10n`, both in
+`app/`. Run it after a clone and after a change in `app/rust/src/api` or an
+ARB file; `flutter pub get` regenerates the localizations as well
+(`generate: true` in `app/pubspec.yaml`). The codegen version is pinned:
+`flutter_rust_bridge` in `Cargo.lock` and `app/pubspec.lock` must agree and
+the installed `flutter_rust_bridge_codegen --version` must answer it, else
+the script refuses; `--install` runs `cargo install
+flutter_rust_bridge_codegen --version <pin> --locked`. The codegen needs Rust
+and Flutter. By hand: `cd app && flutter_rust_bridge_codegen generate &&
+flutter gen-l10n`.
+
+Each build path generates them before it needs them:
+`scripts/integration-test.ts` runs the script before the lock,
+`scripts/build-dmg.ts` in its export (or unpacks `--generated <tar>`), CI
+in `codegen.yml` once for every job ("Continuous integration").
+`scripts/export-public.ts` exports `git archive`, so the public tree carries
+none of them either.
+
+`Cargo.lock` and `app/pubspec.lock` stay in git: they pin the dependencies of
+an application, and every build runs with `--locked` and
+`--enforce-lockfile`.
 
 ## Platform notes
 
@@ -653,6 +683,12 @@ GitHub Actions on the public repository (`.github/workflows/`); both pin
 Rust 1.99.0 (as `app/rust/rust-toolchain.toml`, clippy lints change per
 version), Flutter 3.50.0 stable and every action to an exact version.
 
+- `codegen.yml`, a reusable workflow that both call first: on Ubuntu
+  `bun scripts/codegen.ts --install --pack generated.tar` (the pinned codegen,
+  `~/.cargo/bin` cached by rust-cache) and the artifact `generated`. The
+  output is platform independent; every other job needs it and unpacks the
+  tar (`tar -xf`, on Windows through `cygpath -u`) into its checkout or
+  export.
 - `ci.yml`, every push and pull request to `main`: `cargo fmt --all
   --check`, `cargo clippy --all-targets -- -D warnings` and `cargo test` on
   Ubuntu, Windows and macOS; `flutter analyze` and `flutter test test` on
@@ -842,6 +878,7 @@ version), Flutter 3.50.0 stable and every action to an exact version.
   its PNG yet.
 - `bun scripts/build-dmg.ts [--verify]` exports HEAD to
   `$TMPDIR/ftl-editor-release-src` (uncommitted changes are not built),
+  runs `scripts/codegen.ts` there (CI passes `--generated <tar>` instead),
   builds the release app there, signs it ad-hoc, scans it with
   `scripts/scan-binaries.ts` (a hit stops before the DMG), packs `dist/FTL-Save-Editor-<version>-macos-arm64.dmg` (app plus an
   `/Applications` link; `dist/` is gitignored) and writes the receipt

@@ -1,6 +1,7 @@
 # Checks every push and pull request to main.
-# Rust (test, clippy, fmt) on Linux, Windows and macOS; Flutter (analyze,
-# unit tests) on Linux. The integration tests drive a real app window and stay
+# codegen.yml generates the files that are not in git once; then Rust (test,
+# clippy, fmt) on Linux, Windows and macOS and Flutter (analyze, unit tests) on
+# Linux unpack them. The integration tests drive a real app window and stay
 # a local gate (see AGENTS.md, "Continuous integration").
 name: CI
 
@@ -24,8 +25,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  codegen:
+    uses: ./.github/workflows/codegen.yml
+
   rust:
     name: Rust (${{ matrix.os }})
+    needs: codegen
     strategy:
       fail-fast: false
       matrix:
@@ -39,6 +44,12 @@ jobs:
           rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy,rustfmt
           rustup default "$RUST_VERSION"
       - uses: Swatinem/rust-cache@v2.9.3
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: generated
+      - name: Unpack the generated files
+        shell: bash
+        run: tar -xf generated.tar && rm generated.tar
       - name: cargo fmt --check
         run: cargo fmt --all --check
       - name: cargo clippy
@@ -48,12 +59,19 @@ jobs:
 
   flutter:
     name: Flutter (ubuntu-latest)
+    needs: codegen
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app
     steps:
       - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: generated
+      - name: Unpack the generated files
+        working-directory: .
+        run: tar -xf generated.tar && rm generated.tar
       - name: Linux desktop packages
         run: |
           sudo apt-get update
